@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+.mira-store {
+  --mira-ink: #292723;
+  --mira-muted: #77736d;
+  --mira-cream: #f8f6f1;
+  --mira-line: #e6e1d8;
+  --mira-orange: #d56f43;
+  color: var(--mira-ink);
+  background: var(--mira-cream);
+  font: 15px/1.5 'DM Sans', Arial, sans-serif;
+  min-height: 100vh;
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mira-store * { box-sizing: border-box; }
+.mira-store button, .mira-store input, .mira-store select { font: inherit; }
+.mira-store button { cursor: pointer; }
+.mira-store img { display: block; max-width: 100%; }
+.mira-store h1, .mira-store h2, .mira-store h3, .mira-store p { margin: 0; color: inherit; }
+.mira-store h1, .mira-store h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
+.mira-store h1 { font-size: clamp(46px, 5.6vw, 88px); line-height: 1.05; letter-spacing: -.055em; }
+.mira-store h2 { font-size: clamp(36px, 4vw, 58px); line-height: 1.08; letter-spacing: -.045em; }
+.mira-store em { font-weight: 400; }
+
+.mira-announcement { background: #d7794f; color: white; padding: 9px 20px; text-align: center; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.mira-announcement span { margin: 0 20px; opacity: .85; }
+.mira-header { height: 88px; padding: 0 max(42px, calc((100vw - 1440px) / 2)); display: flex; align-items: center; gap: 58px; background: var(--mira-cream); border-bottom: 1px solid var(--mira-line); position: relative; z-index: 4; }
+.mira-wordmark { font: 700 39px/.8 Georgia, serif !important; letter-spacing: -.105em; border: 0; background: none; color: #2c2d27; padding: 0 6px 8px 0; white-space: nowrap; }
+.mira-wordmark span { color: var(--mira-orange); }
+.mira-nav { display: flex; align-items: center; gap: clamp(18px, 2vw, 33px); flex: 1; }
+.mira-nav button { color: #403d39; padding: 8px 0; border: 0; background: none; white-space: nowrap; font-size: 12px; font-weight: 600; transition: color .2s; }
+.mira-nav button:hover, .mira-footer button:hover { color: var(--mira-orange); }
+.mira-header-actions { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+.mira-search { width: clamp(180px, 17vw, 265px); height: 42px; display: flex; align-items: center; border-bottom: 1px solid #b5afa5; }
+.mira-search:focus-within { border-bottom-color: var(--mira-orange); }
+.mira-search input { min-width: 0; flex: 1; background: none; border: 0; outline: 0; color: var(--mira-ink); font-size: 12px; }
+.mira-search input::placeholder { color: #8d887f; }
+.mira-search button { display: grid; place-items: center; border: 0; background: none; color: var(--mira-ink); padding: 5px; }
+.mira-search-clear { opacity: .55; }
+.mira-bag-button { border: 0; background: none; display: flex; align-items: center; gap: 7px; padding: 5px; color: var(--mira-ink); }
+.mira-bag-button span { font-size: 11px; font-weight: 700; }
+.mira-menu-button { display: none; }
+
+.mira-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .18em; line-height: 1.4; text-transform: uppercase; color: #7c746b; }
+.mira-flower { color: var(--mira-orange); font-size: 18px; vertical-align: middle; margin-right: 7px; }
+.mira-primary-button { min-height: 55px; display: inline-flex; justify-content: center; align-items: center; gap: 28px; padding: 0 24px; border: 1px solid #2c2b28; border-radius: 0; background: #2c2b28; color: white; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: background .2s, transform .2s; }
+.mira-primary-button:hover { background: #484138; transform: translateY(-2px); }
+.mira-text-link { display: inline-flex; align-items: center; gap: 12px; padding: 5px 0; border: 0; border-bottom: 1px solid var(--mira-ink); background: none; text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+
+.mira-hero { min-height: 665px; display: grid; grid-template-columns: 49% 51%; }
+.mira-hero-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 66px 4vw 66px max(7vw, calc((100vw - 1300px) / 2)); background: #eeeae2; }
+.mira-hero-copy h1 { margin: 24px 0 24px; }
+.mira-hero-copy h1 em { color: #b25f44; }
+.mira-hero-copy p { max-width: 390px; color: #6c665f; font-size: 15px; line-height: 1.8; }
+.mira-hero-copy .mira-primary-button { margin-top: 38px; }
+.mira-hero-note { color: #958b7f; margin-top: 70px; font: italic 15px Georgia, serif; }
+.mira-hero-visual { position: relative; overflow: hidden; background: #c5b2a1; }
+.mira-hero-visual img { width: 100%; height: 100%; min-height: 665px; object-fit: cover; object-position: center 46%; }
+.mira-hero-stamp { position: absolute; right: 6%; bottom: 9%; background: #f8f3e9; width: 148px; height: 148px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(-11deg); font: 17px/1.2 Georgia, serif; text-align: center; color: #4e493e; box-shadow: 0 9px 25px #2a21121a; }
+.mira-hero-stamp em { font-size: 22px; }
+.mira-hero-stamp span { font: 24px Arial, sans-serif; margin-top: 3px; }
+.mira-editorial-strip { min-height: 62px; background: #e7dfd3; display: flex; justify-content: space-around; align-items: center; gap: 18px; padding: 12px 3vw; color: #6b594c; font: italic clamp(13px, 1.5vw, 19px) Georgia, serif; }
+.mira-editorial-strip span:nth-child(even) { font: 19px Arial, sans-serif; color: #bb7956; }
+
+.mira-home-section, .mira-listing-page, .mira-detail-page, .mira-bag-page, .mira-checkout-page { width: min(1440px, 100%); margin: auto; padding-left: clamp(22px, 5vw, 78px); padding-right: clamp(22px, 5vw, 78px); }
+.mira-home-section { padding-top: 105px; padding-bottom: 92px; }
+.mira-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 36px; }
+.mira-section-heading h2, .mira-section-heading h1 { margin-top: 12px; }
+.mira-section-heading > p { max-width: 230px; color: var(--mira-muted); font-size: 14px; }
+.mira-category-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.mira-category-card { border: 0; background: #ebe6df; position: relative; overflow: hidden; height: clamp(245px, 31vw, 400px); padding: 0; text-align: left; }
+.mira-category-card::after { content: ''; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent, #1815129c); }
+.mira-category-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.mira-category-card:hover img { transform: scale(1.055); }
+.mira-category-card > span { position: absolute; bottom: 21px; left: 19px; right: 19px; z-index: 1; color: white; display: flex; justify-content: space-between; align-items: center; }
+.mira-category-card strong { font: 27px Georgia, serif; font-weight: 400; letter-spacing: -.03em; }
+.mira-category-1 img { object-position: 55% center; }
+.mira-category-2 img { object-position: 40% center; }
+.mira-featured-section { padding-top: 65px; }
+.mira-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.mira-product-card { width: 100%; border: 0; background: none; color: inherit; text-align: left; padding: 0; }
+.mira-product-image-wrap { display: block; position: relative; aspect-ratio: .76; overflow: hidden; background: #e8e3da; }
+.mira-product-image-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.mira-product-card:hover .mira-product-image-wrap img { transform: scale(1.045); }
+.mira-product-badge { position: absolute; top: 15px; left: 15px; padding: 7px 10px; background: #f8f6f1; color: #403d39; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.mira-card-quick { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: #faf9f4e8; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; transform: translateY(70px); transition: transform .25s; }
+.mira-product-card:hover .mira-card-quick, .mira-product-card:focus-visible .mira-card-quick { transform: translateY(0); }
+.mira-product-meta { display: flex; justify-content: space-between; gap: 10px; color: #888078; margin-top: 14px; font-size: 10px; letter-spacing: .03em; }
+.mira-product-meta > span:last-child { color: var(--mira-ink); font-size: 12px; font-weight: 700; }
+.mira-meta-dot { margin: 0 3px; }
+.mira-product-name { display: block; margin-top: 3px; font: 22px/1.25 Georgia, serif; letter-spacing: -.025em; }
+.mira-values-band { padding: 70px 24px; background: #d7a78b; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.mira-values-band > span { font: clamp(34px, 4vw, 59px)/1.1 Georgia, serif; letter-spacing: -.04em; }
+.mira-values-band p { margin-top: 14px; color: #51433b; }
+.mira-values-band button { display: inline-flex; align-items: center; gap: 12px; margin-top: 25px; padding: 7px 0; border: 0; border-bottom: 1px solid #463b34; background: none; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: .1em; }
+
+.mira-breadcrumb { display: flex; align-items: center; gap: 10px; color: #8e887f; font-size: 11px; margin: 26px 0 45px; }
+.mira-breadcrumb button { border: 0; background: none; padding: 0; color: #6c675f; }
+.mira-breadcrumb button:hover { text-decoration: underline; }
+.mira-breadcrumb > span:last-child { color: var(--mira-ink); }
+.mira-listing-page { padding-bottom: 120px; min-height: 700px; }
+.mira-listing-intro { margin: 0 0 52px; }
+.mira-listing-intro h1 { font-size: clamp(44px, 5vw, 72px); margin: 14px 0 16px; }
+.mira-listing-intro h1 em { color: #b77655; }
+.mira-listing-intro p { font-size: 13px; color: #777168; }
+.mira-listing-toolbar { min-height: 62px; border-top: 1px solid var(--mira-line); border-bottom: 1px solid var(--mira-line); display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+.mira-category-pills { display: flex; flex-wrap: wrap; gap: 3px; }
+.mira-category-pills button { border: 0; background: none; color: #756f67; padding: 8px 13px; font-size: 12px; }
+.mira-category-pills button:first-child { padding-left: 0; }
+.mira-category-pills button.active { color: var(--mira-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 6px; }
+.mira-sort-label { white-space: nowrap; color: #777168; font-size: 11px; }
+.mira-sort-label select { border: 0; background: transparent; color: var(--mira-ink); padding: 4px 15px 4px 4px; font-size: 11px; font-weight: 700; outline: none; }
+.mira-listing-grid { row-gap: 50px; }
+.mira-empty-results { text-align: center; padding: 100px 15px 120px; }
+.mira-empty-results > span { display: block; color: var(--mira-orange); font-size: 45px; margin-bottom: 10px; }
+.mira-empty-results h2 { font-size: 43px; }
+.mira-empty-results p { color: var(--mira-muted); margin: 14px 0 27px; }
+
+.mira-detail-page { padding-bottom: 120px; }
+.mira-detail-page .mira-breadcrumb { margin-bottom: 28px; }
+.mira-detail-layout { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(360px, .88fr); gap: clamp(45px, 8vw, 125px); }
+.mira-detail-main-image { position: relative; aspect-ratio: .83; background: #e8e1d7; }
+.mira-detail-main-image img { width: 100%; height: 100%; object-fit: cover; }
+.mira-detail-image-caption { margin: 13px 0 0; color: #928980; font: italic 14px Georgia, serif; }
+.mira-detail-info { padding: 18px 0 0; }
+.mira-detail-info h1 { font-size: clamp(42px, 4vw, 61px); margin: 17px 0 15px; }
+.mira-detail-price { font-size: 17px; font-weight: 600; }
+.mira-detail-description { color: #706a63; max-width: 410px; line-height: 1.8; margin: 28px 0 !important; font-size: 14px; }
+.mira-detail-rule { height: 1px; background: var(--mira-line); margin-bottom: 24px; }
+.mira-color-row, .mira-size-heading { display: flex; justify-content: space-between; gap: 20px; font-size: 12px; font-weight: 700; }
+.mira-color-row strong { font-weight: 500; color: #706a63; }
+.mira-color-swatch { width: 29px; height: 29px; border-radius: 50%; border: 3px solid #f8f6f1; box-shadow: 0 0 0 1px #5f5a54; margin: 16px 0 36px; }
+.mira-size-heading { margin-bottom: 13px; }
+.mira-size-heading > span:last-child { color: #938a80; font-weight: 400; }
+.mira-size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.mira-size-grid button { height: 48px; border: 1px solid #d7d0c5; background: transparent; color: var(--mira-ink); font-size: 12px; transition: background .2s, color .2s; }
+.mira-size-grid button:hover, .mira-size-grid button.selected { border-color: #2c2b28; background: #2c2b28; color: white; }
+.mira-add-row { display: flex; gap: 10px; margin-top: 30px; }
+.mira-quantity-control { height: 55px; min-width: 110px; display: inline-flex; align-items: center; justify-content: space-between; border: 1px solid #d7d0c5; }
+.mira-quantity-control button { background: none; border: 0; color: var(--mira-ink); width: 36px; height: 100%; font-size: 17px; }
+.mira-quantity-control span { min-width: 22px; text-align: center; font-size: 12px; }
+.mira-add-button { flex: 1; justify-content: space-between; }
+.mira-shipping-note { margin: 16px 0 36px !important; color: #938a80 !important; font-size: 11px; line-height: 1.5; }
+.mira-detail-accordion { border-top: 1px solid var(--mira-line); }
+.mira-detail-accordion details { border-bottom: 1px solid var(--mira-line); }
+.mira-detail-accordion summary { display: flex; justify-content: space-between; list-style: none; cursor: pointer; padding: 18px 0; font-size: 12px; font-weight: 700; }
+.mira-detail-accordion summary::-webkit-details-marker { display: none; }
+.mira-detail-accordion details[open] summary span { transform: rotate(45deg); }
+.mira-detail-accordion details p { padding: 0 0 20px; color: #777168; font-size: 12px; line-height: 1.7; }
+.mira-related { margin-top: 130px; }
+.mira-related .mira-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.mira-bag-page, .mira-checkout-page { min-height: 700px; padding-bottom: 120px; }
+.mira-bag-page .mira-section-heading h1, .mira-checkout-page .mira-section-heading h1 { font-size: clamp(48px, 5vw, 70px); }
+.mira-bag-page .mira-section-heading h1 em { color: #b77655; }
+.mira-bag-layout, .mira-checkout-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr); gap: clamp(40px, 7vw, 100px); }
+.mira-bag-items { border-top: 1px solid var(--mira-line); }
+.mira-bag-item { display: grid; grid-template-columns: 132px 1fr auto; gap: 20px; padding: 23px 0; border-bottom: 1px solid var(--mira-line); }
+.mira-bag-item-image { border: 0; background: #e8e1d7; padding: 0; height: 160px; }
+.mira-bag-item-image img { width: 100%; height: 100%; object-fit: cover; }
+.mira-bag-item-copy { display: flex; align-items: start; flex-direction: column; }
+.mira-bag-product-name { font: 24px Georgia, serif !important; text-align: left; background: none; border: 0; padding: 5px 0; }
+.mira-bag-item-copy p { color: #81796f; font-size: 12px; margin-bottom: 18px; }
+.mira-bag-item-copy .mira-quantity-control { height: 34px; min-width: 94px; }
+.mira-bag-item-end { display: flex; align-items: end; flex-direction: column; justify-content: space-between; font-size: 12px; }
+.mira-bag-item-end button { border: 0; border-bottom: 1px solid #a49a8f; background: none; color: #81796f; padding: 0 0 2px; font-size: 11px; }
+.mira-order-summary { background: #eeeae2; padding: 30px; align-self: start; }
+.mira-order-summary h2 { font-size: 29px; margin-bottom: 28px; }
+.mira-order-summary > div:not(.mira-checkout-item) { display: flex; justify-content: space-between; gap: 15px; margin: 12px 0; color: #777168; font-size: 12px; }
+.mira-order-summary > div strong { color: var(--mira-ink); font-weight: 600; }
+.mira-order-summary > .mira-summary-total { border-top: 1px solid #d9d1c4; padding-top: 17px; margin-top: 24px !important; font-size: 15px !important; font-weight: 700; color: var(--mira-ink) !important; }
+.mira-order-summary > p { margin: 24px 0; color: #777168; font-size: 11px; }
+.mira-order-summary .mira-primary-button { width: 100%; justify-content: space-between; }
+.mira-continue-link { display: block; margin: 19px auto 0; padding: 0 0 3px; border: 0; border-bottom: 1px solid #a49a8f; background: none; color: var(--mira-ink); font-size: 11px; }
+.mira-heading-period { color: var(--mira-orange); }
+.mira-checkout-form { border-top: 1px solid var(--mira-line); padding-top: 20px; }
+.mira-demo-notice { background: #e8e6db; padding: 15px 17px; color: #615c51; font-size: 12px; line-height: 1.55; margin-bottom: 30px !important; }
+.mira-checkout-form h2 { font: 25px Georgia, serif; margin: 28px 0 15px; }
+.mira-checkout-form label { display: block; color: #5c574e; font-size: 11px; font-weight: 700; margin-bottom: 14px; }
+.mira-checkout-form input { display: block; width: 100%; height: 47px; padding: 0 12px; border: 1px solid #d9d1c4; outline: none; background: #fffefa; color: var(--mira-ink); margin-top: 6px; font-size: 13px; }
+.mira-checkout-form input:focus { border-color: var(--mira-orange); }
+.mira-form-two { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.mira-checkout-form .mira-primary-button { margin-top: 20px; }
+.mira-checkout-item { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid #d9d1c4; }
+.mira-checkout-item img { width: 54px; height: 64px; object-fit: cover; }
+.mira-checkout-item > div { display: flex; flex-direction: column; align-items: start; gap: 4px; }
+.mira-checkout-item strong { font-size: 11px; }
+.mira-checkout-item span { font-size: 10px; color: #81796f; }
+.mira-complete-page { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 650px; padding: 90px 24px; }
+.mira-complete-mark { color: var(--mira-orange); font-size: 60px; }
+.mira-complete-page h1 { margin: 15px 0; }
+.mira-complete-page h1 em { color: #b77655; }
+.mira-complete-page p { max-width: 400px; color: var(--mira-muted); margin-bottom: 30px; }
+
+.mira-footer { display: grid; grid-template-columns: 1.4fr .8fr .8fr; gap: 40px; background: #eeeae2; padding: 65px max(42px, calc((100vw - 1285px) / 2)) 0; }
+.mira-footer .mira-wordmark { display: block; margin-bottom: 15px; }
+.mira-footer p { color: #777168; font-size: 12px; max-width: 220px; line-height: 1.7; margin: 0 0 6px; }
+.mira-footer > div:nth-child(2) { display: flex; flex-direction: column; align-items: start; }
+.mira-footer > div > span:first-child { display: block; font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 16px; }
+.mira-footer button:not(.mira-wordmark) { border: 0; background: none; color: #777168; padding: 0 0 5px; font-size: 12px; }
+.mira-footer-bottom { grid-column: 1/-1; border-top: 1px solid #dcd4c8; display: flex; justify-content: space-between; padding: 21px 0; color: #928980; font-size: 10px; }
+.mira-footer-bottom span:first-child { margin: 0 !important; font-size: inherit !important; font-weight: 400 !important; letter-spacing: 0 !important; text-transform: none !important; }
+
+@media (max-width: 1160px) {
+  .mira-header { gap: 28px; padding: 0 30px; }
+  .mira-nav { gap: 15px; }
+  .mira-nav button { font-size: 11px; }
+  .mira-search { width: 170px; }
+  .mira-hero-copy { padding-left: 5vw; }
+}
+
+@media (max-width: 900px) {
+  .mira-header { gap: 17px; height: 72px; }
+  .mira-menu-button { display: flex; flex-direction: column; gap: 6px; border: 0; background: none; padding: 8px; }
+  .mira-menu-button span { display: block; width: 21px; height: 1px; background: var(--mira-ink); }
+  .mira-nav { display: none; position: absolute; top: 72px; left: 0; right: 0; background: var(--mira-cream); border-bottom: 1px solid var(--mira-line); padding: 15px 30px 22px; box-shadow: 0 12px 20px #2e291b12; }
+  .mira-nav-open { display: flex; flex-wrap: wrap; }
+  .mira-nav button { padding: 8px; font-size: 13px; }
+  .mira-wordmark { font-size: 33px !important; }
+  .mira-hero { min-height: 530px; }
+  .mira-hero-visual img { min-height: 530px; }
+  .mira-hero-copy h1 { font-size: clamp(42px, 5.4vw, 64px); }
+  .mira-hero-note { margin-top: 42px; }
+  .mira-category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mira-category-card { height: 320px; }
+  .mira-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+  .mira-featured-section .mira-product-card:last-child { display: none; }
+  .mira-detail-layout { grid-template-columns: minmax(0, 1fr) minmax(320px, .95fr); gap: 35px; }
+  .mira-bag-layout, .mira-checkout-layout { gap: 30px; }
+}
+
+@media (max-width: 650px) {
+  .mira-announcement { font-size: 8px; letter-spacing: .06em; }
+  .mira-announcement span { margin: 0 6px; }
+  .mira-header { padding: 0 15px; }
+  .mira-header-actions { gap: 5px; }
+  .mira-search { width: 35px; border: 0; }
+  .mira-search:focus-within, .mira-search:has(input:not(:placeholder-shown)) { position: absolute; z-index: 2; left: 15px; right: 65px; width: auto; background: var(--mira-cream); border-bottom: 1px solid var(--mira-orange); }
+  .mira-search input { width: 0; }
+  .mira-search:focus-within input, .mira-search:has(input:not(:placeholder-shown)) input { width: auto; }
+  .mira-search-submit { order: -1; }
+  .mira-hero { display: flex; flex-direction: column-reverse; }
+  .mira-hero-visual { height: 330px; }
+  .mira-hero-visual img { min-height: 0; height: 100%; }
+  .mira-hero-stamp { width: 105px; height: 105px; font-size: 12px; }
+  .mira-hero-stamp em { font-size: 15px; }
+  .mira-hero-stamp span { font-size: 18px; }
+  .mira-hero-copy { padding: 43px 23px 55px; }
+  .mira-hero-copy h1 { font-size: 54px; }
+  .mira-hero-copy .mira-primary-button { margin-top: 26px; }
+  .mira-hero-note { display: none; }
+  .mira-editorial-strip { gap: 10px; }
+  .mira-editorial-strip span:nth-of-type(n+4) { display: none; }
+  .mira-home-section { padding-top: 68px; padding-bottom: 60px; }
+  .mira-section-heading { align-items: start; flex-direction: column; margin-bottom: 24px; }
+  .mira-category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .mira-category-card { height: 230px; }
+  .mira-category-card strong { font-size: 23px; }
+  .mira-category-card > span { left: 11px; right: 11px; bottom: 13px; }
+  .mira-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 10px; }
+  .mira-featured-section .mira-product-card:last-child { display: block; }
+  .mira-product-name { font-size: 18px; }
+  .mira-product-meta { font-size: 9px; }
+  .mira-values-band { padding: 55px 22px; }
+  .mira-breadcrumb { margin: 20px 0 32px; flex-wrap: wrap; }
+  .mira-listing-intro { margin-bottom: 35px; }
+  .mira-listing-intro h1 { font-size: 46px; }
+  .mira-listing-toolbar { flex-wrap: wrap; padding: 10px 0; }
+  .mira-category-pills { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .mira-category-pills button { white-space: nowrap; padding: 8px 10px; }
+  .mira-sort-label { width: 100%; text-align: right; }
+  .mira-detail-layout { grid-template-columns: 1fr; gap: 20px; }
+  .mira-detail-main-image { aspect-ratio: .9; }
+  .mira-detail-info { padding: 10px 0 0; }
+  .mira-detail-info h1 { font-size: 47px; }
+  .mira-related { margin-top: 75px; }
+  .mira-related .mira-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mira-related .mira-product-card:last-child { display: none; }
+  .mira-bag-layout, .mira-checkout-layout { grid-template-columns: 1fr; gap: 38px; }
+  .mira-bag-item { grid-template-columns: 92px 1fr auto; gap: 11px; }
+  .mira-bag-item-image { height: 125px; }
+  .mira-bag-product-name { font-size: 19px !important; }
+  .mira-bag-item-end { font-size: 11px; }
+  .mira-order-summary { padding: 24px; }
+  .mira-footer { grid-template-columns: 1fr 1fr; gap: 30px; padding: 50px 22px 0; }
+  .mira-footer > div:first-child { grid-column: 1/-1; }
+  .mira-footer-bottom { flex-direction: column; gap: 7px; }
+}

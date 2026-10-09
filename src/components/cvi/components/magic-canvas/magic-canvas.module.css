@@ -1,0 +1,163 @@
+.container {
+	position: fixed;
+	inset: 0;
+	z-index: 2147483000;
+	pointer-events: none;
+}
+
+.backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(2, 6, 23, 0.48);
+}
+
+.slot {
+	position: absolute;
+	display: flex;
+	gap: 0.75rem;
+	pointer-events: none;
+}
+
+.slotRight,
+.slotLeft {
+	top: max(1rem, env(safe-area-inset-top));
+	bottom: max(1rem, env(safe-area-inset-bottom));
+	width: min(28rem, calc(100vw - 2rem));
+	flex-direction: column;
+	/* Top-anchored + scrollable: a card taller than the band scrolls instead of
+	   being clipped. Centering moves to the inner .sideStack (margin-block: auto)
+	   so a card that fits still centers but collapses when it overflows, letting
+	   the slot scroll from the top. A justify-content: center slot would clip. */
+	overflow-y: auto;
+	/* Reserved up front so the card keeps its width and edge when it grows past
+	   the band and the scrollbar appears. */
+	scrollbar-gutter: stable;
+}
+
+.sideStack {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	gap: 0.75rem;
+	margin-block: auto;
+}
+
+.slotRight {
+	right: max(1rem, env(safe-area-inset-right));
+}
+
+.slotLeft {
+	left: max(1rem, env(safe-area-inset-left));
+}
+
+.slotBottom {
+	/* `top` is load-bearing. Without it the slot is shrink-to-fit around the card,
+	   so its measured height is the height the fit function just gave the card —
+	   the measurement feeds its own input and ratchets down with no floor.
+	   Bottom-anchoring moves to .bottomStack so an overflowing card scrolls from
+	   the top instead of being clipped by a flex-end slot. */
+	top: max(1rem, env(safe-area-inset-top));
+	right: max(1rem, env(safe-area-inset-right));
+	bottom: max(1rem, env(safe-area-inset-bottom));
+	left: max(1rem, env(safe-area-inset-left));
+	flex-direction: column;
+	align-items: center;
+	overflow-y: auto;
+}
+
+.bottomStack {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	gap: 0.75rem;
+	margin-top: auto;
+}
+
+.slotFull {
+	inset: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+		max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: stretch;
+}
+
+/* Reserves the (possibly scaled) layout height for an inline card so a
+   scaled-down card does not overlap its siblings. */
+.framePlaceholder {
+	display: block;
+	width: 100%;
+}
+
+.frameShell {
+	width: 100%;
+	/* Degenerate-value guard only — the host trusts app-reported heights, so
+	   short components (e.g. a 182px input) are not padded to a fixed floor. */
+	min-height: 3rem;
+	overflow: hidden;
+	border: 1px solid rgba(15, 23, 42, 0.14);
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+}
+
+.statusStrip {
+	position: absolute;
+	z-index: 2;
+	display: flex;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.statusStripInner {
+	width: 100%;
+}
+
+.stripShell {
+	width: 100%;
+	overflow: hidden;
+	border: 1px solid rgba(15, 23, 42, 0.14);
+	background: #ffffff;
+	pointer-events: auto;
+}
+
+/* Invisible until the app reports a size, but it must stay RENDERABLE:
+   visibility:hidden render-throttles the cross-origin iframe, so the size
+   report that lifts this gate never arrives and the card stays hidden forever.
+   Opacity keeps the unsized shell (an opaque, tallest-card-height white sheet)
+   invisible; pointer-events keeps it click-through until ready. The :not()
+   selector outranks .frameShellDimmed, so a dimmed card cannot surface early. */
+.frameShell:not(.frameShellReady) {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.frameShellReady {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.frameShellFull {
+	position: fixed;
+	inset: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+		max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+	z-index: 1;
+	min-height: 0;
+}
+
+.frameShellDimmed {
+	opacity: 0.4;
+	transform: scale(0.98);
+}
+
+.frame {
+	display: block;
+	width: 100%;
+	min-height: 3rem;
+	border: 0;
+	background: transparent;
+}
+
+.frameShellFull .frame {
+	height: 100%;
+	min-height: 0;
+}
