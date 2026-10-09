@@ -192,7 +192,7 @@ export const Conversation = React.memo(({ onLeave, conversationUrl }: Conversati
 		return () => {
 			leaveCall();
 		};
-	}, []);
+	}, [joinCall, leaveCall, conversationUrl]);
 
 	const handleLeave = useCallback(() => {
 		leaveCall();

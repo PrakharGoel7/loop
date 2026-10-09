@@ -1,4 +1,4 @@
-import { useAppMessage } from '@daily-co/daily-react';
+import { useAppMessage, useMeetingState } from '@daily-co/daily-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CVIProvider } from '../components/cvi/components/cvi-provider';
 import { Conversation } from '../components/cvi/components/conversation';
@@ -153,24 +153,43 @@ function Room({ session, conversationUrl, onLeave }: { session: Session; convers
   const [copied, setCopied] = useState(false);
   const sendAppMessage = useSendAppMessage();
   const sendRawAppMessage = useAppMessage();
+  const meetingState = useMeetingState();
   const { isScreenSharing, onToggleScreenshare } = useLocalScreenshare();
   const seenEventCount = useRef(0);
   const pendingStoreEvents = useRef<StoreEvent[]>([]);
   const lastRepairStatus = useRef('idle:unpublished');
   const lastContextAt = useRef(0);
   const processedToolCalls = useRef(new Set<string>());
+  const pendingCallMessages = useRef<Array<{ kind: 'context' | 'respond'; text: string }>>([]);
   const phaseRef = useRef<SessionPhase>('intro');
   const storeUrl = useMemo(() => new URL(session.storeUrl, window.location.origin).toString(), [session.storeUrl]);
 
   useEffect(() => { phaseRef.current = phase; }, [phase]);
 
   const appendContext = useCallback((context: string) => {
+    if (meetingState !== 'joined-meeting') {
+      pendingCallMessages.current.push({ kind: 'context', text: context });
+      return;
+    }
     sendAppMessage({ message_type: 'conversation', event_type: 'conversation.append_llm_context', conversation_id: session.conversationId!, properties: { context } });
-  }, [sendAppMessage, session.conversationId]);
+  }, [meetingState, sendAppMessage, session.conversationId]);
 
   const respond = useCallback((text: string) => {
+    if (meetingState !== 'joined-meeting') {
+      pendingCallMessages.current.push({ kind: 'respond', text });
+      return;
+    }
     sendAppMessage({ message_type: 'conversation', event_type: 'conversation.respond', conversation_id: session.conversationId!, properties: { text } });
-  }, [sendAppMessage, session.conversationId]);
+  }, [meetingState, sendAppMessage, session.conversationId]);
+
+  useEffect(() => {
+    if (meetingState !== 'joined-meeting') return;
+    const queued = pendingCallMessages.current.splice(0);
+    for (const message of queued) {
+      if (message.kind === 'context') appendContext(message.text);
+      else respond(message.text);
+    }
+  }, [meetingState, appendContext, respond]);
 
   useObservableEvent<ToolCall>(useCallback((event) => {
     if (event.event_type === 'conversation.utterance') {
