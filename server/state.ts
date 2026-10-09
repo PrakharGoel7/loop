@@ -62,6 +62,16 @@ const sessions = new Map<string, StudySession>(
   Object.entries(readJson<Record<string, StudySession>>(sessionsFile, {})),
 );
 
+let recoveredInterruptedRepair = false;
+for (const session of sessions.values()) {
+  if (!['queued', 'running', 'verifying'].includes(session.repair.status)) continue;
+  session.repair.status = 'failed';
+  session.repair.error = 'The local server restarted while the code change was in progress. Retry the repair in a new study session.';
+  session.repair.finishedAt = new Date().toISOString();
+  recoveredInterruptedRepair = true;
+}
+if (recoveredInterruptedRepair) writeJson(sessionsFile, Object.fromEntries(sessions));
+
 let localConfig = readJson<LocalConfig>(configFile, {});
 
 export function getLocalConfig() {

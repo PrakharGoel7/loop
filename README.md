@@ -4,7 +4,7 @@ ShopPatch is a local, live usability study for a sample clothing store. A Tavus 
 
 ## Run locally
 
-Requirements: Node.js 20.19+ or 22.12+, pnpm, a Tavus API key, and a locally signed-in Codex CLI (`codex`). The key is entered in the browser setup screen; do not put it in source control. On this Mac, the bundled Node runtime is available at `/Users/PrakharGoel/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin` if your default Node is older.
+Requirements: Node.js 20.19+ or 22.12+, pnpm, a Tavus API key, and a locally signed-in Codex CLI (`codex`). The key is entered in the browser setup screen; do not put it in source control. On this Mac, the bundled Node runtime is available at `/Users/PrakharGoel/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin` if your default Node is older. The repair worker defaults to the account-supported `gpt-5.6-sol`; set `SHOPPATCH_CODEX_MODEL` if your account uses a different supported model.
 
 ```bash
 cd /Users/PrakharGoel/Documents/Codex/2026-10-08/loo/outputs/shoppatch
@@ -23,7 +23,7 @@ Open <http://127.0.0.1:5173>. The setup screen creates a PAL with Tavus' default
 4. Once a problem is confirmed, the PAL can call `start_store_repair`. The app launches `codex exec` in an isolated Git worktree, limits edits to `src/store/`, then runs TypeScript and a production build. A verified patch is applied to the running source. Vite hot reloads it.
 5. Reload the store, try the same task, and tell the PAL what changed. End the call and open the report.
 
-The app does **not** contain a prebuilt color-filter or size-guide variant. Those may be sensible repairs if a real shopper's actions and words support them. The catalog includes product colors and garment measurements so a coding worker can build honest controls without making up product facts.
+The app does **not** contain a prebuilt color-filter or size-guide variant. Those may be sensible repairs if a real shopper's actions and words support them. The catalog includes product colors and size ranges so a coding worker can build honest controls without making up product facts.
 
 ## Why a video PAL here
 

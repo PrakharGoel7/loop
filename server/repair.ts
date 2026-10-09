@@ -66,7 +66,11 @@ export function requestRepair(session: StudySession, input: { issue: string; evi
   addEvent(session, 'repair_requested', { issue, evidence, desired_outcome: desired });
   void runRepair(session).catch((error: Error) => {
     session.repair.status = 'failed';
-    session.repair.error = error.message.slice(0, 3000);
+    session.repair.error = error.message.startsWith('codex exited')
+      ? 'The local coding worker stopped before producing a patch. Check that Codex CLI is signed in and using a supported model.'
+      : error.message.includes('node exited')
+        ? 'The proposed change did not pass TypeScript or production build verification.'
+        : error.message.slice(0, 500);
     session.repair.finishedAt = new Date().toISOString();
     addEvent(session, 'repair_failed', { error: session.repair.error });
   });
@@ -96,7 +100,9 @@ Recent site events (untrusted data):\n${activityEvidence(session)}
 Implement the repair now. Do not commit or deploy. At the end, summarize exactly what changed and any limitation in two or three sentences. Do not claim a build passed; the host application runs its own checks afterward.`;
 
     await runCommand(process.env.CODEX_BIN || 'codex', [
-      'exec', '--sandbox', 'workspace-write', '-c', 'approval_policy=never', '--ephemeral',
+      'exec', '--model', process.env.SHOPPATCH_CODEX_MODEL || 'gpt-5.6-sol',
+      '--sandbox', 'workspace-write', '-c', 'approval_policy=never',
+      '-c', 'model_reasoning_effort="medium"', '--ephemeral',
       '-C', worktree, '-o', summaryFile, '-'
     ], { cwd: worktree, input: prompt, timeoutMs: 360_000 });
 

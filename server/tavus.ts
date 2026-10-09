@@ -41,7 +41,9 @@ type ConversationResponse = { conversation_id: string; conversation_url: string;
 export async function configureTavus(nextKey: string, faceId = DEFAULT_FACE) {
   const candidate = nextKey.trim();
   if (!candidate) throw new Error('Enter a Tavus API key.');
+  const previousKey = apiKey;
   apiKey = candidate;
+  try {
 
   const existing = getLocalConfig();
   let palId = existing.palId;
@@ -137,6 +139,10 @@ export async function configureTavus(nextKey: string, faceId = DEFAULT_FACE) {
     setLocalConfig({ palId, toolIds });
   }
   return { ready: true, palId };
+  } catch (error) {
+    apiKey = previousKey;
+    throw error;
+  }
 }
 
 export async function createTavusConversation(session: StudySession, testMode = false) {
