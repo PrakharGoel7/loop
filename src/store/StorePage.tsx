@@ -99,6 +99,24 @@ export default function StorePage() {
     }
   }, [sessionId, view, category])
 
+  useEffect(() => {
+    if (!sessionId || view !== 'product' || selectedProduct?.id !== 'weekend-linen-tank') return
+    let timer: number | undefined
+    const schedule = () => {
+      window.clearTimeout(timer)
+      if (document.visibilityState !== 'visible') return
+      timer = window.setTimeout(() => {
+        track('white_top_detail_dwell', { productId: selectedProduct.id, productName: selectedProduct.name, seconds: 5 })
+      }, 5_000)
+    }
+    document.addEventListener('visibilitychange', schedule)
+    schedule()
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('visibilitychange', schedule)
+    }
+  }, [sessionId, view, selectedProduct])
+
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
   const clearProductParam = () => {
     const url = new URL(window.location.href)
