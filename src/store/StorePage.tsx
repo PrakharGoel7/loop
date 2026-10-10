@@ -81,6 +81,24 @@ export default function StorePage() {
     }).catch(() => undefined)
   }, [sessionId])
 
+  useEffect(() => {
+    if (!sessionId || view !== 'listing' || category !== 'Tops') return
+    let timer: number | undefined
+    const schedule = () => {
+      window.clearTimeout(timer)
+      if (document.visibilityState !== 'visible') return
+      timer = window.setTimeout(() => {
+        track('tops_listing_dwell', { category: 'Tops', seconds: 5 })
+      }, 5_000)
+    }
+    document.addEventListener('visibilitychange', schedule)
+    schedule()
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('visibilitychange', schedule)
+    }
+  }, [sessionId, view, category])
+
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
   const clearProductParam = () => {
     const url = new URL(window.location.href)
