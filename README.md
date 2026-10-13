@@ -29,10 +29,6 @@ The demo uses a clothing store to show this workflow.
 
 ![Loop architecture: user, Tavus CVI, knowledge base, coding worker, test website, and website developer](docs/images/architecture.png)
 
-Tavus CVI conducts the interview, draws on prior research, and requests website changes. The coding worker implements those changes for the participant to test. The website developer receives a report of the findings and feedback.
-
-The diagram groups prior-research retrieval and stored interview evidence under **Knowledge Base**. Tavus handles retrieval; Loop stores session evidence and assembles the reports.
-
 ## Try it
 
 **Hosted:** [Open Loop](https://35-226-89-51.sslip.io/). No invite code is required. Use a desktop browser, allow camera and microphone access, and share the store tab or window when asked. Checkout is simulated; no real payment is needed.
