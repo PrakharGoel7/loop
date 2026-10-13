@@ -6,7 +6,7 @@
 
 **Live website research with a face-to-face AI interviewer and a coding agent.**
 
-[Try the demo](https://35-226-89-51.sslip.io/) · [Architecture](docs/ARCHITECTURE.md) · [Run locally](docs/SETUP.md) · [Demo walkthrough](docs/DEMO.md)
+[Try the demo](https://35-226-89-51.sslip.io/) · [Architecture](docs/ARCHITECTURE.md) · [Run locally](docs/SETUP.md)
 
 [![Checks](https://github.com/PrakharGoel7/loop/actions/workflows/checks.yml/badge.svg)](https://github.com/PrakharGoel7/loop/actions/workflows/checks.yml)
 ![React](https://img.shields.io/badge/React-19-243d31)
