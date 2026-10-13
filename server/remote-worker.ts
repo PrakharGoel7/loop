@@ -51,10 +51,6 @@ export async function runRemoteCommand(workspace: RemoteWorkspace, command: stri
   return run('ssh', [...sshArgs(workspace.host), 'node -e ' + quote(program)], { ...options, timeoutMs: timeout + 5000 });
 }
 
-export async function syncRemoteStore(workspace: RemoteWorkspace, run: WorkerCommand) {
-  await run('rsync', ['-az', '--delete', '-e', 'ssh -o BatchMode=yes -o ConnectTimeout=10', `${workspace.host}:${workspace.root}/src/store/`, workspace.localRoot + '/src/store/'], { timeoutMs: 60_000 });
-}
-
 export async function readRemoteFile(workspace: RemoteWorkspace, relative: string, run: WorkerCommand) {
   if (relative.startsWith('/') || relative.split('/').includes('..')) throw new Error('Invalid remote result path.');
   return (await runRemoteCommand(workspace, 'node', ['-e', 'process.stdout.write(require("fs").readFileSync(process.argv[1],"utf8"))', workspace.root + '/' + relative], run, { timeoutMs: 10_000 })).stdout;

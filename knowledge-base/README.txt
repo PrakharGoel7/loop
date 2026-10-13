@@ -17,4 +17,3 @@ finishes processing. Unchanged sources reuse the existing document.
 
 Mira retrieves rank 1 after the overall-experience answer. Loop no longer selects
 or injects the top issue. Objectives still track the shopper's answer or decline.
-The old sample-issues.json and knowledge-base.ts support historical fixtures only.
