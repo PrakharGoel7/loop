@@ -1,6 +1,6 @@
 # Demo walkthrough
 
-## For reviewers
+## Using the demo
 
 1. [Open the hosted demo](https://35-226-89-51.sslip.io/) in a desktop browser. No invite code is needed. One participant can run a study at a time.
 2. Begin the interview and allow the camera and microphone. Tell Mira what kind of clothing you want.

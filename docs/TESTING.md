@@ -8,7 +8,7 @@ pnpm exec tsc --ignoreConfig --noEmit --module NodeNext --moduleResolution NodeN
 pnpm build
 ```
 
-The 57 tests at submission cover ownership, conversational sequencing, objectives, evidence/report linking, bounded worker tools, repair admission, cancellation, publication, version artifacts, and interview departure notifications. The repair tests use controlled worker responses; they do not call Tavus or establish real-model quality.
+The automated tests cover ownership, conversational sequencing, objectives, evidence/report linking, bounded worker tools, repair admission, cancellation, publication, version artifacts, and interview departure notifications. The repair tests use controlled worker responses; they do not call Tavus or establish real-model quality.
 
 The GitHub Actions workflow runs the same test and type/build commands on Node 22. It has no deployment step and requires no application credentials.
 
