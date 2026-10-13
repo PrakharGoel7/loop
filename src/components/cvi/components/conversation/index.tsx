@@ -1,11 +1,13 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
 	DailyAudioTrack,
 	DailyVideo,
 	useDevices,
+	useDaily,
+	useAudioLevelObserver,
 	useLocalSessionId,
 	useMeetingState,
-	useScreenVideoTrack,
 	useVideoTrack,
 } from '@daily-co/daily-react';
 import { MicSelectBtn, CameraSelectBtn, ScreenShareButton } from '../device-select';
@@ -22,6 +24,7 @@ import styles from './conversation.module.css';
 interface ConversationProps {
 	onLeave: () => void;
 	conversationUrl: string;
+	onCallDiagnostic?: (type: string, detail?: string) => void;
 }
 
 const VideoPreview = React.memo(({ id }: { id: string }) => {
@@ -48,12 +51,14 @@ const VideoPreview = React.memo(({ id }: { id: string }) => {
 const PreviewVideos = React.memo(() => {
 	const localId = useLocalSessionId();
 	const { isScreenSharing } = useLocalScreenshare();
-	const replicaIds = useReplicaIDs();
-	const replicaId = replicaIds[0];
 
 	return (
 		<>
-			{isScreenSharing && <VideoPreview id={replicaId} />}
+			{isScreenSharing && (
+				<div className={styles.previewVideoContainer}>
+					<DailyVideo sessionId={localId} type="screenVideo" fit="contain" className={styles.previewVideo} />
+				</div>
+			)}
 			<VideoPreview id={localId} />
 		</>
 	);
@@ -65,13 +70,10 @@ const SelfView = React.memo(() => (
 	</div>
 ));
 
-const MainVideo = React.memo(() => {
+const MainVideo = React.memo(({ videoRef }: { videoRef: React.RefObject<HTMLDivElement | null> }) => {
 	const replicaIds = useReplicaIDs();
-	const localId = useLocalSessionId();
 	const videoState = useVideoTrack(replicaIds[0]);
-	const screenVideoState = useScreenVideoTrack(localId);
 	const meetingState = useMeetingState();
-	const isScreenSharing = !screenVideoState.isOff;
 	const replicaId = replicaIds[0];
 	const [hasReplicaConnected, setHasReplicaConnected] = useState(false);
 
@@ -94,16 +96,12 @@ const MainVideo = React.memo(() => {
 	}
 
 	return (
-		<div
-			className={`${styles.mainVideoContainer} ${isScreenSharing ? styles.mainVideoContainerScreenSharing : ''}`}
-		>
+		<div ref={videoRef} className={styles.mainVideoContainer}>
 			<DailyVideo
 				automirror
-				sessionId={isScreenSharing ? localId : replicaId}
-				type={isScreenSharing ? 'screenVideo' : 'video'}
-				className={`${styles.mainVideo}
-				${isScreenSharing ? styles.mainVideoScreenSharing : ''}
-				${videoState.isOff ? styles.mainVideoHidden : ''}`}
+				sessionId={replicaId}
+				type="video"
+				className={`${styles.mainVideo} ${videoState.isOff ? styles.mainVideoHidden : ''}`}
 			/>
 			<DailyAudioTrack sessionId={replicaId} />
 		</div>
@@ -173,16 +171,208 @@ const MoreMenu = memo(() => {
 
 MoreMenu.displayName = 'MoreMenu';
 
-export const Conversation = React.memo(({ onLeave, conversationUrl }: ConversationProps) => {
+type DocumentPictureInPicture = {
+	requestWindow: (options: { width: number; height: number }) => Promise<Window>;
+};
+
+function documentPictureInPicture() {
+	return (window as Window & { documentPictureInPicture?: DocumentPictureInPicture }).documentPictureInPicture;
+}
+
+const floatingFacesStyle = `
+	* { box-sizing: border-box; }
+	body { margin: 0; background: #101827; color: white; font-family: system-ui, sans-serif; }
+	.loop-pip-faces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100vw; height: 100vh; padding: 4px; }
+	.loop-pip-face { position: relative; min-width: 0; overflow: hidden; border-radius: 10px; background: #263448; }
+	.loop-pip-face video { width: 100%; height: 100%; object-fit: cover; }
+	.loop-pip-face--self video { transform: scaleX(-1); }
+	.loop-pip-label { position: absolute; bottom: 8px; left: 8px; padding: 3px 8px; border-radius: 5px; background: rgba(0, 0, 0, .65); font-size: 12px; font-weight: 600; }
+`;
+
+const FloatingFaceVideo = React.memo(({ track }: { track?: MediaStreamTrack | null }) => {
+	const videoRef = useRef<HTMLVideoElement>(null);
+	useEffect(() => {
+		const video = videoRef.current;
+		if (!video) return;
+		video.srcObject = track && track.readyState === 'live' ? new MediaStream([track]) : null;
+		if (video.srcObject) void video.play().catch(() => undefined);
+		return () => { video.srcObject = null; };
+	}, [track]);
+	return <video ref={videoRef} autoPlay playsInline muted />;
+});
+
+const FloatingFaces = React.memo(({ target, shopperTrack, miraTrack }: { target: Window; shopperTrack?: MediaStreamTrack | null; miraTrack?: MediaStreamTrack | null }) =>
+	createPortal(
+		<div className="loop-pip-faces">
+			<div className="loop-pip-face">
+				<FloatingFaceVideo track={miraTrack} />
+				<span className="loop-pip-label">Mira</span>
+			</div>
+			<div className="loop-pip-face loop-pip-face--self">
+				<FloatingFaceVideo track={shopperTrack} />
+				<span className="loop-pip-label">You</span>
+			</div>
+		</div>,
+		target.document.body,
+	),
+);
+
+export const Conversation = React.memo(({ onLeave, conversationUrl, onCallDiagnostic }: ConversationProps) => {
 	const { joinCall, leaveCall } = useCVICall();
 	const meetingState = useMeetingState();
 	const { hasMicError } = useDevices();
+	const { isScreenSharing } = useLocalScreenshare();
+	const localId = useLocalSessionId();
+	const replicaId = useReplicaIDs()[0];
+	const daily = useDaily();
+	const micPeak = useRef(0);
+	useAudioLevelObserver(localId, useCallback((level: number) => {
+		micPeak.current = Math.max(micPeak.current, level);
+	}, []));
+	useEffect(() => {
+		if (meetingState !== 'joined-meeting' || !daily) return;
+		let samples = 0;
+		const timer = window.setInterval(() => {
+			const audio = daily.participants().local?.tracks.audio;
+			const track = audio?.persistentTrack;
+			onCallDiagnostic?.('microphone_input', JSON.stringify({
+				enabled: daily.localAudio(), state: audio?.state,
+				trackState: track?.readyState, trackMuted: track?.muted,
+				device: track?.label, peakLevel: Number(micPeak.current.toFixed(4)),
+			}));
+			micPeak.current = 0;
+			if (++samples >= 3) window.clearInterval(timer);
+		}, 10000);
+		return () => window.clearInterval(timer);
+	}, [meetingState, daily, onCallDiagnostic]);
+
+	const shopperTrack = useVideoTrack(localId).track;
+	const miraTrack = useVideoTrack(replicaId).track;
+	const miraVideoRef = useRef<HTMLDivElement>(null);
+	const [isMiraFloating, setIsMiraFloating] = useState(false);
+	const [floatingWindow, setFloatingWindow] = useState<Window | null>(null);
+	const floatingWindowRef = useRef<Window | null>(null);
+	const openingWindowRef = useRef(false);
+	const autoOpenedRef = useRef(false);
+	const wasSharingRef = useRef(isScreenSharing);
+	const sharingRef = useRef(isScreenSharing);
+	const autoFloatTimer = useRef<number | null>(null);
+	const [floatError, setFloatError] = useState('');
 
 	useEffect(() => {
-		if (meetingState === 'error') {
-			onLeave();
+		const onEnter = () => setIsMiraFloating(true);
+		const onLeavePictureInPicture = () => setIsMiraFloating(false);
+		document.addEventListener('enterpictureinpicture', onEnter, true);
+		document.addEventListener('leavepictureinpicture', onLeavePictureInPicture, true);
+		return () => {
+			document.removeEventListener('enterpictureinpicture', onEnter, true);
+			document.removeEventListener('leavepictureinpicture', onLeavePictureInPicture, true);
+		};
+	}, []);
+
+	const toggleMiraFloating = useCallback(async () => {
+		setFloatError('');
+		if (!('pictureInPictureEnabled' in document) || !document.pictureInPictureEnabled) {
+			setFloatError('Floating video is unavailable in this browser.');
+			return;
 		}
-	}, [meetingState, onLeave]);
+		try {
+			const video = miraVideoRef.current?.querySelector('video');
+			if (!video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+				setFloatError('Mira’s video is still connecting. Try again in a moment.');
+				return;
+			}
+			if (document.pictureInPictureElement === video) {
+				await document.exitPictureInPicture();
+				setIsMiraFloating(false);
+				return;
+			}
+			await video.requestPictureInPicture();
+			setIsMiraFloating(true);
+		} catch {
+			setFloatError('Could not float Mira’s video. Please try again.');
+		}
+	}, []);
+
+	const closeFloatingFaces = useCallback(() => {
+		floatingWindowRef.current?.close();
+		floatingWindowRef.current = null;
+		setFloatingWindow(null);
+	}, []);
+
+	const openFloatingFaces = useCallback(async (automatic = false) => {
+		const api = documentPictureInPicture();
+		if (!api) {
+			if (automatic) setFloatError('This browser cannot float both faces. Chrome supports the two-person view.');
+			return;
+		}
+		if (openingWindowRef.current || floatingWindowRef.current || !localId || !replicaId) return;
+		openingWindowRef.current = true;
+		setFloatError('');
+		onCallDiagnostic?.('float_requested', automatic ? 'automatic' : 'manual');
+		try {
+			const pip = await api.requestWindow({ width: 520, height: 310 });
+			if (automatic && !sharingRef.current) {
+				pip.close();
+				return;
+			}
+			const style = pip.document.createElement('style');
+			style.textContent = floatingFacesStyle;
+			pip.document.head.appendChild(style);
+			pip.addEventListener('pagehide', () => {
+				if (floatingWindowRef.current === pip) {
+					floatingWindowRef.current = null;
+					setFloatingWindow(null);
+				}
+			});
+			floatingWindowRef.current = pip;
+			setFloatingWindow(pip);
+			onCallDiagnostic?.('float_opened', automatic ? 'automatic' : 'manual');
+		} catch {
+			onCallDiagnostic?.('float_failed', automatic ? 'automatic' : 'manual');
+			setFloatError(automatic
+				? 'Your browser needs a click to float both faces. Press Float faces in the call controls.'
+				: 'Could not float both faces in this browser.');
+		} finally {
+			openingWindowRef.current = false;
+		}
+	}, [localId, replicaId, onCallDiagnostic]);
+
+	useEffect(() => {
+		sharingRef.current = isScreenSharing;
+		if (isScreenSharing && !wasSharingRef.current && !floatingWindowRef.current) {
+			autoOpenedRef.current = true;
+			autoFloatTimer.current = window.setTimeout(() => {
+				autoFloatTimer.current = null;
+				if (sharingRef.current && meetingState === 'joined-meeting') void openFloatingFaces(true);
+			}, 900);
+		} else if (!isScreenSharing && wasSharingRef.current && autoOpenedRef.current) {
+			if (autoFloatTimer.current !== null) window.clearTimeout(autoFloatTimer.current);
+			autoFloatTimer.current = null;
+			closeFloatingFaces();
+			autoOpenedRef.current = false;
+		}
+		wasSharingRef.current = isScreenSharing;
+	}, [isScreenSharing, meetingState, openFloatingFaces, closeFloatingFaces]);
+
+	useEffect(() => () => {
+		if (autoFloatTimer.current !== null) window.clearTimeout(autoFloatTimer.current);
+		floatingWindowRef.current?.close();
+	}, []);
+
+	const toggleFloatingFaces = useCallback(() => {
+		if (!documentPictureInPicture()) {
+			void toggleMiraFloating();
+			return;
+		}
+		if (floatingWindowRef.current) {
+			closeFloatingFaces();
+			autoOpenedRef.current = false;
+			return;
+		}
+		autoOpenedRef.current = false;
+		void openFloatingFaces();
+	}, [closeFloatingFaces, openFloatingFaces, toggleMiraFloating]);
 
 	useEffect(() => {
 		joinCall({ url: conversationUrl });
@@ -212,9 +402,14 @@ export const Conversation = React.memo(({ onLeave, conversationUrl }: Conversati
 									</p>
 								</div>
 							)}
+							{meetingState === 'error' && (
+								<div className={styles.errorContainer} role="alert">
+									The video connection was interrupted. Reload this interview tab to reconnect, or use the call controls to end the study.
+								</div>
+							)}
 
 							<div className={styles.mainVideoContainer}>
-								<MainVideo />
+								<MainVideo videoRef={miraVideoRef} />
 							</div>
 
 							<SelfView />
@@ -231,6 +426,9 @@ export const Conversation = React.memo(({ onLeave, conversationUrl }: Conversati
 							<div className={styles.footerControls}>
 								<MicSelectBtn />
 								<CameraSelectBtn />
+								<button type="button" className={styles.floatButton} onClick={toggleFloatingFaces} aria-pressed={Boolean(floatingWindow) || isMiraFloating} title={floatingWindow ? 'Return both faces to the call window' : 'Keep both faces visible over the store'}>
+									<span aria-hidden="true">▣</span> {floatingWindow || isMiraFloating ? 'Dock faces' : documentPictureInPicture() ? 'Float faces' : 'Float Mira'}
+								</button>
 								<MoreMenu />
 								<ChatButton />
 								<button type="button" className={styles.leaveButton} onClick={handleLeave}>
@@ -255,6 +453,8 @@ export const Conversation = React.memo(({ onLeave, conversationUrl }: Conversati
 									</span>
 								</button>
 							</div>
+							{floatingWindow && <FloatingFaces target={floatingWindow} shopperTrack={shopperTrack} miraTrack={miraTrack} />}
+							{floatError && <div className={styles.floatError} role="status">{floatError}</div>}
 						</div>
 					</div>
 				</div>

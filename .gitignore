@@ -25,3 +25,12 @@ data/
 *.njsproj
 *.sln
 *.sw?
+
+# Local credentials and generated artifacts
+.env.*
+!.env.example
+*.pem
+*.key
+*.tsbuildinfo
+playwright-report/
+test-results/

@@ -148,6 +148,14 @@ type AppMessageUserStoppedSpeaking = EventOrdering & {
 	inference_id: string;
 };
 
+type AppMessageObjective = {
+  event_type: 'conversation.objective.activated' | 'conversation.objective.completed';
+  conversation_id?: string;
+  objective_name?: string;
+  output_variables?: Record<string, unknown>;
+  properties?: { objective_name?: string; output_variables?: Record<string, unknown> };
+};
+
 type AppMessage<T> = {
 	data:
 		| AppMessageUtterance
@@ -160,7 +168,8 @@ type AppMessage<T> = {
 		| AppMessageReplicaStartedSpeaking
 		| AppMessageReplicaStoppedSpeaking
 		| AppMessageUserStartedSpeaking
-		| AppMessageUserStoppedSpeaking;
+		| AppMessageUserStoppedSpeaking
+		| AppMessageObjective;
 };
 
 export function useObservableEvent<T>(callback: (event: AppMessage<T>['data']) => void): void {
@@ -168,7 +177,12 @@ export function useObservableEvent<T>(callback: (event: AppMessage<T>['data']) =
 		'app-message',
 		useCallback(
 			(event: AppMessage<T>) => {
-				callback(event.data);
+				let data = event.data;
+                if (typeof data === 'string') {
+                    try { data = JSON.parse(data); } catch { return; }
+                }
+                if (!data || typeof data !== 'object') return;
+                callback(data);
 			},
 			[callback]
 		)

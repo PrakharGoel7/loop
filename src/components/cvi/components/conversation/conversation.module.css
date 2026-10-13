@@ -73,6 +73,40 @@
 	gap: 16px;
 }
 
+.floatButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	min-height: 3rem;
+	padding: 0 0.85rem;
+	border: 1px solid rgba(255, 255, 255, 0.45);
+	border-radius: 9999px;
+	background: rgba(15, 23, 42, 0.75);
+	color: white;
+	font: inherit;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.floatButton:hover,
+.floatButton[aria-pressed='true'] {
+	background: rgba(255, 255, 255, 0.95);
+	color: #0f172a;
+}
+
+.floatError {
+	width: fit-content;
+	max-width: calc(100% - 2rem);
+	margin: 0.5rem auto 0;
+	padding: 0.35rem 0.7rem;
+	border-radius: 0.5rem;
+	background: rgba(15, 23, 42, 0.85);
+	color: white;
+	font-size: 0.75rem;
+}
+
 .moreMenu {
 	display: block;
 	position: relative;
@@ -144,9 +178,17 @@
 		gap: 8px;
 	}
 	.moreButton,
-	.leaveButton {
+	.leaveButton,
+	.floatButton {
 		height: 2.5rem;
 		width: 2.5rem;
+	}
+	.floatButton {
+		padding: 0;
+		font-size: 0;
+	}
+	.floatButton span {
+		font-size: 1rem;
 	}
 }
 

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "scope": "Exact shopper statements and repair-tool arguments from study 1f3801f6-ed4, replayed with compressed event timing. Real current planner, coder, verification, publication; excludes Tavus speech/perception/tool selection. Three sequential sessions avoid cross-session contention.",
+  "sourceStudy": "1f3801f6-ed4",
+  "cases": [
+    {
+      "id": "favorites-sizing-replay",
+      "title": "Replay live Favorites then sizing requests",
+      "checkout": "while-building",
+      "requests": [
+        {
+          "statement": "Yeah, like, I can just, like, heart it on the page and then there's a separate tab where I can look at it later.",
+          "precedingStatements": [
+            "I am looking for, um, some pants, please.",
+            "I was only in black.",
+            "Great. Can you see my screen now?",
+            "[Loop observation, not shopper speech] Visible camera cue: The participant moves their right hand to rest their chin on it, and then proceeds to rub their nose and mouth area with their hand.. At the next appropriate pause, briefly reference what you actually observed and ask one neutral question about what the shopper is thinking or feeling. Do not assert an emotion. If this overlaps a question already asked, wait for the answer instead.",
+            "I just wonder if there was some way in which I could, um, shortlist the ones that I want, and then maybe review them later together, like have some favorites."
+          ],
+          "issue": "Lack of a wish-list or favoriting system to shortlist items for later review.",
+          "evidence": "The shopper stated, 'I just wonder if there was some way in which I could, um, shortlist the ones that I want, and then maybe review them later together, like have some favorites.' When asked for a resolution, they said, 'Yeah, like, I can just, like, heart it on the page and then there's a separate tab where I can look at it later.'",
+          "desired_outcome": "A heart icon on the page to favorite items and a separate tab to review those favorites later.",
+          "event": {
+            "type": "product_viewed",
+            "detail": {
+              "productId": "coastal-poplin-shirt",
+              "productName": "Coastal Poplin Shirt"
+            }
+          }
+        },
+        {
+          "statement": "Maybe you have some kind of sizing guide.",
+          "precedingStatements": [
+            "[Loop observation, not shopper speech] Visible camera cue: The participant shows a widening of the eyes that is maintained across several frames, followed by a blink.. At the next appropriate pause, briefly reference what you actually observed and ask one neutral question about what the shopper is thinking or feeling. Do not assert an emotion. If this overlaps a question already asked, wait for the answer instead.",
+            "I'm just thinking about the size. I think\u2014 I wish I could know. I don't know whether I'm a small or an extra small, so I'm kind of confused."
+          ],
+          "issue": "Lack of a sizing guide leads to confusion and uncertainty when selecting sizes.",
+          "evidence": "The shopper said, 'I don't know whether I'm a small or an extra small, so I'm kind of confused.' When asked what would help, they suggested, 'Maybe you have some kind of sizing guide.'",
+          "desired_outcome": "A sizing guide available on the product page to help users choose between sizes.",
+          "event": {
+            "type": "product_viewed",
+            "detail": {
+              "productId": "coastal-poplin-shirt",
+              "productName": "Coastal Poplin Shirt"
+            }
+          }
+        }
+      ],
+      "afterQueueStatements": [
+        "What else?",
+        "What else? Hello.",
+        "Um. I think the color scheme could be better.",
+        "It was just a bit difficult to read.",
+        "Are the changes done yet?"
+      ],
+      "acceptance": [
+        "Save and unsave products from the storefront, with an accessible visible selected state.",
+        "Favorites tab displays only saved items, persists across navigation, and updates after removal.",
+        "Product page offers a sizing guide containing existing catalog measurements and units.",
+        "Selecting a size, adding to cart and completing fictional checkout still work.",
+        "Both jobs plan successfully; second planning starts only after first verification and sees the first verified code.",
+        "No publication until both jobs verify and checkout is complete; exact baseline restored.",
+        "Observation injection and post-queue remarks do not appear as shopper research in planning input."
+      ]
+    }
+  ]
+}

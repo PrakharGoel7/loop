@@ -1,59 +1,99 @@
-# ShopPatch
+<div align="center">
 
-ShopPatch is a local, live usability study for a sample clothing store. A Tavus PAL interviews a shopper face to face while Raven observes the shared store window. The app also records exact store actions. When the PAL has confirmed a usability problem, a local coding worker edits the store source, checks the build, and publishes the change for an immediate retest. The study report shows what was observed, what the shopper said, and the actual code diff.
+# Loop
 
-## Run locally
+### See the friction. Change the site. Test it again.
 
-Requirements: Node.js 20.19+ or 22.12+, pnpm, a Tavus API key, and a locally signed-in Codex CLI (`codex`). The key is entered in the browser setup screen; do not put it in source control. On this Mac, the bundled Node runtime is available at `/Users/PrakharGoel/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin` if your default Node is older. The repair worker defaults to the account-supported `gpt-5.6-sol`; set `SHOPPATCH_CODEX_MODEL` if your account uses a different supported model.
+**Live website research with a face-to-face AI interviewer and a coding agent.**
+
+[Try the demo](https://35-226-89-51.sslip.io/) · [Architecture](docs/ARCHITECTURE.md) · [Run locally](docs/SETUP.md) · [Demo walkthrough](docs/DEMO.md)
+
+[![Checks](https://github.com/PrakharGoel7/loop/actions/workflows/checks.yml/badge.svg)](https://github.com/PrakharGoel7/loop/actions/workflows/checks.yml)
+![React](https://img.shields.io/badge/React-19-243d31)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-243d31)
+![Tavus](https://img.shields.io/badge/Tavus-CVI-c66c3b)
+
+</div>
+
+![Loop's live website research landing page](docs/images/loop-home.png)
+
+## The idea
+
+User testing often ends with a list of things to fix. Loop brings the next step into the same conversation: **observe a problem, ask the person what would help, build a small change, and let them try it.**
+
+A Tavus interviewer, Mira, talks to the participant while they use a website. Screen perception and instrumented website events provide context for questions. Once the participant confirms an obstacle and suggests a remedy, a background coding agent implements a targeted UI change. After the first journey and verification finish, the same person tries the revision and gives feedback.
+
+Loop is a prototype for dynamic website testing. **The included clothing store is the demonstration environment**, not a restriction on the product idea. Supporting another website currently requires adapting its instrumentation and editable source scope; this is not an arbitrary-URL testing service.
+
+## What it does
+
+| Capability | In the demo |
+| --- | --- |
+| Face-to-face interviewing | Tavus CVI provides the video conversation, voice, and turn taking. |
+| Questions grounded in behavior | Raven observes the shared screen and camera; website events add precise navigation, selection, and checkout signals. Cues prompt clarification, not a diagnosis of emotion. |
+| Store access in the conversation | Magic Canvas presents the website link. |
+| Native knowledge retrieval | Tavus retrieves a ranked concern from an attached CSV of **synthetic past-user research**. |
+| Real code changes | A planner scopes the suggestion; a coding worker edits an isolated copy of the store. No prepared patch is used in the active flow. |
+| Verified publication | Up to two changes run sequentially. Publication requires every accepted change to verify and the first journey to finish. |
+| Immediate retesting | Mira asks for feedback on each published change, then wraps up. |
+| Evidence you can review | Two report sections: friction cards with clip, quote, fix, and revised quote; then the event timeline. |
+
+## The loop
+
+```mermaid
+flowchart LR
+    A[Observe the task] --> B[Clarify the obstacle]
+    B --> C[Ask what would help]
+    C --> D[Plan → Code → Verify]
+    D --> E{First journey complete?}
+    E -->|Yes, all jobs verified| F[Publish together]
+    F --> G[Reload and retest]
+    G --> H[Capture feedback and report]
+```
+
+The interview continues while work runs. After checkout, Mira asks about the overall experience, then a knowledge-base concern, and follows up while needed. The reload invitation waits for the required debrief and the current answer to finish. Publishing the revision and inviting the participant to retry are separate decisions.
+
+## Explore the implementation
+
+| Start here | What to look for |
+| --- | --- |
+| [Architecture](docs/ARCHITECTURE.md) | System diagram, event flow, worker queue, and publication boundary. |
+| [Interviewer prompt](server/interviewer-prompt.ts) | Question style, evidence gathering, acknowledgements, and retest rules. |
+| [Tavus integration](server/tavus.ts) | PAL setup, perception, tools, Magic Canvas, and native knowledge documents. |
+| [Worker orchestration](server/repair.ts) | Planning, bounded edits, verification, cancellation, and restoration. |
+| [Report assembly](server/report-summary.ts) | Linking observed issues to actual quotes and revisions. |
+| [Testing and evaluation](docs/TESTING.md) | Automated checks, real-worker evals, and what they do not prove. |
+
+## Try it
+
+**Hosted:** [Open Loop](https://35-226-89-51.sslip.io/). No invite code is required. Use a desktop browser, allow camera and microphone access, and share the store tab or window when asked. The public demo supports **one active study at a time**. Checkout is simulated; no real payment is needed.
+
+**Local:** Node.js 22.12+, pnpm 10, Git, an authenticated Codex CLI, and a Tavus API key are required for the full experience. FFmpeg prepares friction clips.
 
 ```bash
-cd /Users/PrakharGoel/Documents/Codex/2026-10-08/loo/outputs/shoppatch
-export PATH="/Users/PrakharGoel/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH"
-pnpm install
+git clone https://github.com/PrakharGoel7/loop.git
+cd loop
+pnpm install --frozen-lockfile
+cp .env.example .env
+# Set LOOP_CODEX_BIN to your Codex executable in .env.
 pnpm dev:all
 ```
 
-Open <http://127.0.0.1:5173>. The setup screen creates a PAL with Tavus' default Anna face, Raven perception, Magic Canvas, and the study tools. You may supply another Face ID if your Tavus workspace has one. The key stays in the local API process memory; only the PAL and tool IDs are saved under ignored `data/`.
+Open `http://127.0.0.1:5173` and configure Tavus. The example environment disables native knowledge retrieval for the first local run, because Tavus needs a publicly reachable document URL. [Setup instructions](docs/SETUP.md) explain how to enable it.
 
-## Demo path
+## Scope and tradeoffs
 
-1. Start an interview. Tell the PAL what clothing you want. It can put the store link on Magic Canvas; the study panel also shows the link.
-2. Open the store in another tab, share **that tab or window** with the PAL, and shop normally. The catalog has tops, jeans, dresses, jackets, and sweaters. Search, compare, pick a size, and use the simulated checkout. No payment details are collected.
-3. Think aloud. The PAL can inspect recent exact store events, use Raven's shared-screen context, and ask neutral follow-up questions. When you finish your first attempt, use the **Finished your first attempt?** control.
-4. Once a problem is confirmed, the PAL can call `start_store_repair`. The app launches `codex exec` in an isolated Git worktree, limits edits to `src/store/`, then runs TypeScript and a production build. A verified patch is applied to the running source. Vite hot reloads it.
-5. Reload the store, try the same task, and tell the PAL what changed. End the call and open the report.
+- **A working prototype, not a production research platform.** It has a two-change budget, one active study, and a narrow store-code edit boundary.
+- **Verification is not proof of usefulness.** Source checks, TypeScript, and a production build gate publication. Optional browser regression checks add coverage; the participant's retry evaluates the experience.
+- **Interview timing is probabilistic.** Backend code enforces queue and publication rules; Tavus objectives and prompts guide the spoken conversation.
+- **Research examples are synthetic.** The knowledge CSV is demo data, not findings collected from actual participants.
+- **Study media is private.** Clips, transcripts, credentials, and execution logs are excluded from this repository. Hosted visitors can access their own studies; configuration is managed on the server.
+- **Leaving ends the study.** Navigating away or closing the interview tab sends an end request. A roughly two-minute heartbeat timeout covers lost connections. Switching to the store tab does not end the call.
 
-The app does **not** contain a prebuilt color-filter or size-guide variant. Those may be sensible repairs if a real shopper's actions and words support them. The catalog includes product colors and size ranges so a coding worker can build honest controls without making up product facts.
+The repository retains clearly labeled [legacy prepared-patch experiments](prepared-repairs/README.md). They are outside the current repair path.
 
-## Why a video PAL here
+## Built with
 
-A human researcher would normally sit with a shopper, watch where they look, listen to uncertainty, and ask what they expected at the moment it matters. Tavus gives the study a visible interviewer with turn taking and rapport, while Raven provides live context from the shopper's shared screen. Store telemetry adds precise action data that screen perception alone cannot reliably reconstruct. The app treats clicks as signals to ask about, not proof of confusion.
+React · TypeScript · Vite · Express · Tavus CVI · Daily · Codex CLI · FFmpeg · Google Cloud Storage
 
-## Architecture
-
-```text
-Browser study room ── Tavus CVI call ── PAL + Raven + Magic Canvas
-       │                     │
-       │ store events        │ tool calls / utterances
-       ▼                     ▼
-Local Express API ─── session evidence + repair state
-       │
-       └── isolated Git worktree → Codex CLI source edit → TS + Vite checks
-                                        │
-                                        └── verified patch → live store → retest
-```
-
-- `src/interview/`: setup, CVI room, screen-share control, Magic Canvas host, event relay.
-- `src/store/`: independent storefront and catalog, with instrumented shopping actions.
-- `src/report/`: observed actions, participant quotes, repair evidence, and diff.
-- `server/tavus.ts`: PAL, skill, tool, and conversation setup.
-- `server/repair.ts`: source-edit worker, scope enforcement, verification, publication.
-- `server/state.ts`: local session and event storage.
-
-This local demo supports one active repair against one working store checkout at a time. To start a fresh baseline study after a published repair, restore `src/store/` from the initial Git commit. The study data under `data/` is local and ignored by Git.
-
-## Verification status
-
-The storefront, study room setup screen, and report were visually checked locally. The React TypeScript check and Vite production build pass. The local API routes and source-edit worker can be exercised without a Tavus key. A live PAL call, Raven screen perception, Magic Canvas generation, and Tavus tool delivery require entering a valid key in the local setup screen and have not been verified without it.
-
-Tavus references: [PAL creation](https://docs.tavus.io/api-reference/pals/create-pal), [screen share](https://docs.tavus.io/sections/conversational-video-interface/pal/screen-share), [Magic Canvas configuration](https://docs.tavus.io/sections/conversational-video-interface/magic-canvas/api/configuration), [tool delivery](https://docs.tavus.io/sections/conversational-video-interface/pal/llm-tool-delivery).
+The hosted app and warm coding worker run separately on Google Compute Engine. GitHub hosts the source and automated checks; it does not run the interview backend or deploy changes automatically.

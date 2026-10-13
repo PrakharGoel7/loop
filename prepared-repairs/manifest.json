@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-10-10T17:33:48.229Z",
+  "buildInputHash": "474651d593b77f5bc7ca2a5a6df3752c658fbeee6815b98768f0116bc4f26ffa",
+  "patchHashes": {
+    "shortlist": "f2aaef8cb60c821a56cc76a3c5c5a2eddabd14286e38b956f5e3a2607a89ecf6",
+    "size-guide": "49df738a050ac5f47e1be4770d6800dabfc453ac96cdcaa520636fbeeb5441b1"
+  },
+  "variants": {
+    "shortlist": {
+      "storeHash": "c00776f544c6c5ca34702de0ea29e591244ccdbf02c9d8e4bdb0e65679fb191e",
+      "typecheckMs": 2801,
+      "buildMs": 498
+    },
+    "size-guide": {
+      "storeHash": "6cfc115552923168e9ddf58baf8846c0b34cc927e19840a1c9cbb538bd846acf",
+      "typecheckMs": 2734,
+      "buildMs": 452
+    },
+    "shortlist+size-guide": {
+      "storeHash": "2f5091a51f79ccf6b02ccf49b019346780bba901019030aa74edefa2533e18f0",
+      "typecheckMs": 2750,
+      "buildMs": 445
+    }
+  }
+}

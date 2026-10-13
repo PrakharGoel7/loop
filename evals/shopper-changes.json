@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "scope": "Recorded transcript and simulated Mira repair-tool arguments through the real planner, coder, verification and publication. Does not measure live audio, perception, or tool-call selection.",
+  "cases": [
+    {
+      "id": "color-filter",
+      "title": "Find a preferred color",
+      "checkout": "while-building",
+      "requests": [{"statement":"I keep opening things that aren't the color I want. Could I filter the tops by color instead?","issue":"Cannot narrow the collection by color","desired_outcome":"Let me filter tops by color.","event":{"type":"search_submitted","detail":{"query":"blue top"}}}],
+      "acceptance": ["A visible color control narrows the listing using real catalog colors.","A selected color excludes other colors and combines with the category.","Clearing the color restores the category's products."]
+    },
+    {
+      "id": "size-guide",
+      "title": "Understand size measurements",
+      "checkout": "after-verification",
+      "requests": [{"statement":"I can't tell if I need small or medium. Can you show me the measurements for each size here?","issue":"Size labels do not explain fit","desired_outcome":"Show the measurements for each available size on the product page.","event":{"type":"size_selected","detail":{"productId":"coastal-poplin-shirt","size":"M","previousSize":"S"}}}],
+      "acceptance": ["Product details expose measurements for available sizes.","Values and units match the existing catalog; no invented sizing facts.","Selecting a size and adding to the bag still work."]
+    },
+    {
+      "id": "favorites",
+      "title": "Save and revisit a shortlist",
+      "checkout": "while-building",
+      "requests": [{"statement":"I liked two things but lost them when I kept browsing. Could I heart them and have somewhere to see all my saved items?","issue":"Losing promising products while comparing options","desired_outcome":"Let me heart items and see them together in a saved-items section.","event":{"type":"product_viewed","detail":{"productId":"coastal-poplin-shirt","productName":"Coastal Poplin Shirt"}}}],
+      "acceptance": ["Shopper can save and unsave individual products.","A discoverable saved-items view shows only saved products.","Saved items survive navigating away and returning; removing one updates the view."]
+    },
+    {
+      "id": "delivery-cost",
+      "title": "Show delivery charges before the bag",
+      "checkout": "after-verification",
+      "requests": [{"statement":"It says free delivery over a hundred, but I don't know the charge below that. Could you show that amount next to the product price before I add it?","issue":"Shipping charge below the free threshold is unclear before adding an item","desired_outcome":"Show the existing shipping charge below the free-shipping threshold near the product price.","event":{"type":"product_viewed","detail":{"productId":"weekend-linen-tank","productName":"Weekend Cotton Tank"}}}],
+      "acceptance": ["The product page shows the actual existing shipping charge and free threshold near the price.","Amounts match checkout logic; no invented delivery promise.","Product selection and add-to-bag remain usable."]
+    },
+    {
+      "id": "search-recovery",
+      "title": "Recover from an unsuccessful search",
+      "checkout": "while-building",
+      "requests": [{"statement":"That search found nothing. The little cross empties the box but I'm still stuck on the same results. I'd like clearing the search to actually show the clothes again.","issue":"Clearing search input leaves the old results applied","desired_outcome":"When I clear the search, reset the results as well as the text box.","event":{"type":"search_submitted","detail":{"query":"not-a-real-product"}}}],
+      "acceptance": ["Submitting an unmatched term produces the empty-results state.","The clear-search control empties both the input and active search.","Products are visible again without submitting another search."]
+    },
+    {
+      "id": "two-change-session",
+      "title": "Two requests during one journey",
+      "checkout": "while-building",
+      "requests": [
+        {"statement":"I'd like to narrow these by color. Could you add a color filter?","issue":"Cannot filter by color","desired_outcome":"Add a color filter for the collection.","event":{"type":"listing_viewed","detail":{"category":"Tops"}}},
+        {"statement":"Now I'm choosing between sizes and don't know the measurements. Please show the measurements for the size I choose.","issue":"Unclear measurements when choosing a size","desired_outcome":"Show the existing measurements for the selected size.","event":{"type":"size_selected","detail":{"productId":"coastal-poplin-shirt","size":"M","previousSize":"S"}}}
+      ],
+      "acceptance": ["Both requests become separate plans and jobs; the second waits for the first.","No revision publishes while either accepted job is unfinished.","The final site contains a working color filter AND correct size measurements.","The second change preserves the first; session end restores the exact baseline."]
+    }
+  ],
+  "future_adversarial_cases": [
+    {"statement":"Something feels off here.","expected":"Mira clarifies the cause and asks for a solution before queueing anything."},
+    {"statement":"Can you do that color filter I asked for already?","expected":"Do not create a duplicate change."},
+    {"statement":"Also add reviews after those first two changes.","expected":"Keep the two-change cap; acknowledge without queueing a third."},
+    {"statement":"Can you connect this to real warehouse inventory?","expected":"Clarify or state the limitation; never claim a real integration from a UI-only change."},
+    {"statement":"Maybe just make it easier to compare everything.","expected":"Clarify the desired outcome, then scope one small comparison aid rather than redesigning the store."}
+  ]
+}

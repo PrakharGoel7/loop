@@ -1,0 +1,189 @@
+diff --git a/src/store/StorePage.css b/src/store/StorePage.css
+index c58f100..5fdbbfd 100644
+--- a/src/store/StorePage.css
++++ b/src/store/StorePage.css
+@@ -81,13 +81,21 @@
+ .mira-category-2 img { object-position: 40% center; }
+ .mira-featured-section { padding-top: 65px; }
+ .mira-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+-.mira-product-card { width: 100%; border: 0; background: none; color: inherit; text-align: left; padding: 0; }
++.mira-product-card { width: 100%; color: inherit; text-align: left; }
++.mira-favorites-button { border: 0; background: none; color: var(--mira-ink); display: flex; align-items: center; gap: 5px; padding: 5px; white-space: nowrap; font-size: 11px; font-weight: 700; }
++.mira-favorites-button > span:first-child { font-size: 23px; line-height: 1; }
++.mira-favorites-button[aria-current="page"] { color: var(--mira-orange); }
++.mira-favorites-count { min-width: 17px; text-align: center; }
+ .mira-product-image-wrap { display: block; position: relative; aspect-ratio: .76; overflow: hidden; background: #e8e3da; }
++.mira-product-open { display: block; width: 100%; height: 100%; border: 0; padding: 0; background: none; }
++.mira-product-open:focus-visible, .mira-save-button:focus-visible, .mira-card-quick:focus-visible { outline: 2px solid var(--mira-orange); outline-offset: -2px; }
+ .mira-product-image-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+ .mira-product-card:hover .mira-product-image-wrap img { transform: scale(1.045); }
+ .mira-product-badge { position: absolute; top: 15px; left: 15px; padding: 7px 10px; background: #f8f6f1; color: #403d39; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+ .mira-card-quick { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: #faf9f4e8; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; transform: translateY(70px); transition: transform .25s; }
+-.mira-product-card:hover .mira-card-quick, .mira-product-card:focus-visible .mira-card-quick { transform: translateY(0); }
++.mira-product-card:hover .mira-card-quick, .mira-product-card:focus-within .mira-card-quick { transform: translateY(0); }
++.mira-save-button { position: absolute; top: 12px; right: 12px; z-index: 1; width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #f8f6f1cc; border-radius: 50%; background: #faf9f4e8; color: var(--mira-ink); font-size: 22px; line-height: 1; }
++.mira-save-button.saved { color: var(--mira-orange); }
+ .mira-product-meta { display: flex; justify-content: space-between; gap: 10px; color: #888078; margin-top: 14px; font-size: 10px; letter-spacing: .03em; }
+ .mira-product-meta > span:last-child { color: var(--mira-ink); font-size: 12px; font-weight: 700; }
+ .mira-meta-dot { margin: 0 3px; }
+@@ -111,6 +119,8 @@
+ .mira-category-pills button { border: 0; background: none; color: #756f67; padding: 8px 13px; font-size: 12px; }
+ .mira-category-pills button:first-child { padding-left: 0; }
+ .mira-category-pills button.active { color: var(--mira-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 6px; }
++.mira-category-pills .mira-saved-filter { margin-left: 8px; color: var(--mira-orange); border: 1px solid #d7a58d; }
++.mira-category-pills .mira-saved-filter.active { background: var(--mira-orange); border-color: var(--mira-orange); color: white; text-decoration: none; }
+ .mira-sort-label { white-space: nowrap; color: #777168; font-size: 11px; }
+ .mira-sort-label select { border: 0; background: transparent; color: var(--mira-ink); padding: 4px 15px 4px 4px; font-size: 11px; font-weight: 700; outline: none; }
+ .mira-listing-grid { row-gap: 50px; }
+@@ -237,6 +247,7 @@
+   .mira-announcement span { margin: 0 6px; }
+   .mira-header { padding: 0 15px; }
+   .mira-header-actions { gap: 5px; }
++  .mira-favorites-label { display: none; }
+   .mira-search { width: 35px; border: 0; }
+   .mira-search:focus-within, .mira-search:has(input:not(:placeholder-shown)) { position: absolute; z-index: 2; left: 15px; right: 65px; width: auto; background: var(--mira-cream); border-bottom: 1px solid var(--mira-orange); }
+   .mira-search input { width: 0; }
+diff --git a/src/store/StorePage.tsx b/src/store/StorePage.tsx
+index cddab37..461613e 100644
+--- a/src/store/StorePage.tsx
++++ b/src/store/StorePage.tsx
+@@ -5,7 +5,7 @@ import type { Category, Product, Size } from './catalog'
+ import heroImage from './assets/hero.jpg'
+ import './StorePage.css'
+ 
+-type View = 'home' | 'listing' | 'product' | 'bag' | 'checkout' | 'complete'
++type View = 'home' | 'listing' | 'favorites' | 'product' | 'bag' | 'checkout' | 'complete'
+ type CartItem = { productId: string; size: Size; quantity: number }
+ type SortOrder = 'featured' | 'price-low' | 'price-high'
+ 
+@@ -38,9 +38,20 @@ function loadCart(key: string): CartItem[] {
+   }
+ }
+ 
++function loadSaved(key: string): string[] {
++  try {
++    const raw = localStorage.getItem(key)
++    const parsed: unknown = raw ? JSON.parse(raw) : []
++    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
++  } catch {
++    return []
++  }
++}
++
+ export default function StorePage() {
+   const sessionId = useMemo(() => new URLSearchParams(window.location.search).get('session') ?? '', [])
+   const cartKey = `mira-cart-${sessionId || 'demo'}`
++  const savedKey = `mira-saved-${sessionId || 'demo'}`
+   const initialProduct = useMemo(() => {
+     const id = new URLSearchParams(window.location.search).get('product')
+     return products.find((product) => product.id === id) ?? null
+@@ -54,6 +65,8 @@ export default function StorePage() {
+   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct)
+   const [selectedSize, setSelectedSize] = useState<Size | null>(null)
+   const [cart, setCart] = useState<CartItem[]>(() => loadCart(cartKey))
++  const [savedIds, setSavedIds] = useState<string[]>(() => loadSaved(savedKey))
++  const [showSavedOnly, setShowSavedOnly] = useState(false)
+   const [quantity, setQuantity] = useState(1)
+   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+   const [checkoutEmail, setCheckoutEmail] = useState('')
+@@ -62,6 +75,10 @@ export default function StorePage() {
+     localStorage.setItem(cartKey, JSON.stringify(cart))
+   }, [cart, cartKey])
+ 
++  useEffect(() => {
++    localStorage.setItem(savedKey, JSON.stringify(savedIds))
++  }, [savedIds, savedKey])
++
+   const track = (type: string, detail: Record<string, unknown> = {}) => {
+     if (!sessionId) return
+     void fetch(`/api/sessions/${encodeURIComponent(sessionId)}/events`, {
+@@ -120,6 +137,7 @@ export default function StorePage() {
+   const openListing = (nextCategory: Category | 'All' = 'All', nextQuery = '') => {
+     clearProductParam()
+     setCategory(nextCategory)
++    setShowSavedOnly(false)
+     setQuery(nextQuery)
+     setSearchDraft(nextQuery)
+     setView('listing')
+@@ -128,6 +146,14 @@ export default function StorePage() {
+     scrollTop()
+   }
+ 
++  const openFavorites = () => {
++    clearProductParam()
++    setView('favorites')
++    setMobileMenuOpen(false)
++    track('favorites_viewed', { itemCount: savedIds.length })
++    scrollTop()
++  }
++
+   const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+     event.preventDefault()
+     const normalized = searchDraft.trim()
+@@ -183,6 +209,7 @@ export default function StorePage() {
+   const listedProducts = useMemo(() => {
+     const terms = query.toLowerCase().split(/\s+/).filter(Boolean)
+     const filtered = products.filter((product) => {
++      if (showSavedOnly && !savedIds.includes(product.id)) return false
+       if (category !== 'All' && product.category !== category) return false
+       if (!terms.length) return true
+       const searchable = [product.name, product.category, product.category.slice(0, -1), product.color, product.description, ...(product.keywords ?? [])].join(' ').toLowerCase()
+@@ -191,18 +218,27 @@ export default function StorePage() {
+     if (sort === 'price-low') return [...filtered].sort((a, b) => a.price - b.price)
+     if (sort === 'price-high') return [...filtered].sort((a, b) => b.price - a.price)
+     return filtered
+-  }, [category, query, sort])
++  }, [category, query, sort, savedIds, showSavedOnly])
++
++  const favoriteProducts = products.filter((product) => savedIds.includes(product.id))
++
++  const toggleSaved = (product: Product) => {
++    const isSaved = savedIds.includes(product.id)
++    setSavedIds((ids) => isSaved ? ids.filter((id) => id !== product.id) : [...ids, product.id])
++    track(isSaved ? 'shortlist_removed' : 'shortlist_added', { productId: product.id, productName: product.name })
++  }
+ 
+   const ProductCard = ({ product }: { product: Product }) => (
+-    <button type="button" className="mira-product-card" onClick={() => openProduct(product)} aria-label={`View ${product.name}, ${money(product.price)}`}>
++    <article className="mira-product-card">
+       <span className="mira-product-image-wrap">
+-        <img src={product.image} alt={product.name} style={{ objectPosition: product.imagePosition }} loading="lazy" />
++        <button type="button" className="mira-product-open" onClick={() => openProduct(product)} aria-label={`View ${product.name}, ${money(product.price)}`}><img src={product.image} alt={product.name} style={{ objectPosition: product.imagePosition }} loading="lazy" /></button>
+         {product.badge && <span className="mira-product-badge">{product.badge}</span>}
+-        <span className="mira-card-quick">Explore <ArrowIcon /></span>
++        <button type="button" className={`mira-save-button ${savedIds.includes(product.id) ? 'saved' : ''}`} onClick={() => toggleSaved(product)} aria-pressed={savedIds.includes(product.id)} aria-label={`${savedIds.includes(product.id) ? 'Remove' : 'Save'} ${product.name} ${savedIds.includes(product.id) ? 'from' : 'to'} Favorites`}><span aria-hidden="true">{savedIds.includes(product.id) ? '♥' : '♡'}</span></button>
++        <button type="button" className="mira-card-quick" onClick={() => openProduct(product)}>Explore <ArrowIcon /></button>
+       </span>
+       <span className="mira-product-meta"><span>{product.category} <span className="mira-meta-dot">·</span> {product.color}</span><span>{money(product.price)}</span></span>
+       <span className="mira-product-name">{product.name}</span>
+-    </button>
++    </article>
+   )
+ 
+   return <div className="mira-store">
+@@ -220,6 +256,7 @@ export default function StorePage() {
+           {searchDraft && <button type="button" className="mira-search-clear" onClick={() => setSearchDraft('')} aria-label="Clear search"><CloseIcon /></button>}
+           <button type="submit" className="mira-search-submit" aria-label="Search"><SearchIcon /></button>
+         </form>
++        <button type="button" className="mira-favorites-button" onClick={openFavorites} aria-label={`Favorites with ${savedIds.length} items`} aria-current={view === 'favorites' ? 'page' : undefined}><span aria-hidden="true">♡</span><span className="mira-favorites-label">Favorites</span><span className="mira-favorites-count">{savedIds.length}</span></button>
+         <button type="button" className="mira-bag-button" onClick={() => { setView('bag'); track('bag_viewed', { itemCount: cartCount }); scrollTop() }} aria-label={`Bag with ${cartCount} items`}><BagIcon /><span>{cartCount}</span></button>
+       </div>
+     </header>
+@@ -259,10 +296,16 @@ export default function StorePage() {
+       {view === 'listing' && <section className="mira-listing-page">
+         <div className="mira-breadcrumb"><button type="button" onClick={goHome}>Home</button><span>/</span><span>{query ? `Search: ${query}` : category === 'All' ? 'Shop all' : category}</span></div>
+         <div className="mira-listing-intro"><span className="mira-eyebrow">The Mira collection</span><h1>{query ? <>Results for <em>“{query}”</em></> : category === 'All' ? <>Pieces to <em>live in.</em></> : <>{category} to <em>live in.</em></>}</h1><p>{query ? `${listedProducts.length} ${listedProducts.length === 1 ? 'piece' : 'pieces'} found` : 'Thoughtful shapes, good fabrics, and the details that make them yours.'}</p></div>
+-        <div className="mira-listing-toolbar"><div className="mira-category-pills"><button type="button" className={category === 'All' ? 'active' : ''} onClick={() => { setCategory('All'); track('category_selected', { category: 'All', query }) }}>All</button>{categories.map((item) => <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => { setCategory(item); track('category_selected', { category: item, query }) }}>{item}</button>)}</div><label className="mira-sort-label">Sort by <select value={sort} onChange={(event) => { const nextSort = event.target.value as SortOrder; setSort(nextSort); track('sort_changed', { sort: nextSort }) }}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></label></div>
++        <div className="mira-listing-toolbar"><div className="mira-category-pills"><button type="button" className={category === 'All' ? 'active' : ''} onClick={() => { setCategory('All'); setShowSavedOnly(false); track('category_selected', { category: 'All', query }) }}>All</button>{categories.map((item) => <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => { setCategory(item); setShowSavedOnly(false); track('category_selected', { category: item, query }) }}>{item}</button>)}<button type="button" className={`mira-saved-filter ${showSavedOnly ? 'active' : ''}`} onClick={() => setShowSavedOnly((visible) => !visible)} aria-pressed={showSavedOnly}>♡ Saved ({savedIds.length})</button></div><label className="mira-sort-label">Sort by <select value={sort} onChange={(event) => { const nextSort = event.target.value as SortOrder; setSort(nextSort); track('sort_changed', { sort: nextSort }) }}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></label></div>
+         {listedProducts.length ? <div className="mira-product-grid mira-listing-grid">{listedProducts.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="mira-empty-results"><span>✳</span><h2>No pieces found</h2><p>Try a different search or browse the full collection.</p><button type="button" className="mira-primary-button" onClick={() => openListing('All')}>Shop all <ArrowIcon /></button></div>}
+       </section>}
+ 
++      {view === 'favorites' && <section className="mira-listing-page">
++        <div className="mira-breadcrumb"><button type="button" onClick={goHome}>Home</button><span>/</span><span>Favorites</span></div>
++        <div className="mira-listing-intro"><span className="mira-eyebrow">Your personal edit</span><h1>Favorites <em>({favoriteProducts.length})</em></h1><p>The pieces you've saved in one place.</p></div>
++        {favoriteProducts.length ? <div className="mira-product-grid mira-listing-grid">{favoriteProducts.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="mira-empty-results"><span>♡</span><h2>No favorites yet.</h2><p>Tap the heart on any piece to save it here.</p><button type="button" className="mira-primary-button" onClick={() => openListing('All')}>Explore the collection <ArrowIcon /></button></div>}
++      </section>}
++
+       {view === 'product' && selectedProduct && <section className="mira-detail-page">
+         <div className="mira-breadcrumb"><button type="button" onClick={goHome}>Home</button><span>/</span><button type="button" onClick={() => openListing(selectedProduct.category)}>{selectedProduct.category}</button><span>/</span><span>{selectedProduct.name}</span></div>
+         <div className="mira-detail-layout"><div className="mira-detail-images"><div className="mira-detail-main-image"><img src={selectedProduct.image} alt={selectedProduct.name} style={{ objectPosition: selectedProduct.imagePosition }} />{selectedProduct.badge && <span className="mira-product-badge">{selectedProduct.badge}</span>}</div><div className="mira-detail-image-caption">Made for the moments in between.</div></div><div className="mira-detail-info"><span className="mira-eyebrow">{selectedProduct.category} / Everyday favorites</span><h1>{selectedProduct.name}</h1><div className="mira-detail-price">{money(selectedProduct.price)}</div><p className="mira-detail-description">{selectedProduct.description}</p><div className="mira-detail-rule" /><div className="mira-color-row"><span>Color</span><strong>{selectedProduct.color}</strong></div><div className="mira-color-swatch" style={{ background: colorSwatch(selectedProduct.color) }} aria-label={selectedProduct.color} /><div className="mira-size-heading" id="mira-size-choices"><span>Size</span><span>Select your size</span></div><div className="mira-size-grid">{selectedProduct.sizes.map((size) => <button type="button" key={size} className={selectedSize === size ? 'selected' : ''} onClick={() => chooseSize(size)} aria-pressed={selectedSize === size}>{size}</button>)}</div><div className="mira-add-row"><div className="mira-quantity-control"><button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity">−</button><span>{quantity}</span><button type="button" onClick={() => setQuantity((value) => value + 1)} aria-label="Increase quantity">+</button></div><button type="button" className="mira-primary-button mira-add-button" onClick={addToBag}>Add to bag <ArrowIcon /></button></div><p className="mira-shipping-note">Complimentary shipping on orders over $100. Easy returns within 30 days.</p><div className="mira-detail-accordion"><details><summary>Details & care <span>+</span></summary><p>{selectedProduct.material}. {selectedProduct.fit}. Machine wash cold with like colors; lay flat to dry.</p></details><details><summary>Shipping & returns <span>+</span></summary><p>Standard delivery in 3–5 business days. Returns are accepted within 30 days for unworn items.</p></details></div></div></div>
